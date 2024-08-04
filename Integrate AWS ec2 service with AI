@@ -1,3 +1,49 @@
 import cv2
 import mediapipe
 import boto3
+cap=cv2.VideoCapture(0)
+from cvzone.HandTrackingModule import HandDetector
+detector=HandDetector()
+def launchOS():
+    launch = boto3.client("ec2")
+    info_os=launch.run_instances(
+    ImageId='ami-06f621d90fa29f6d0',
+    InstanceType='t2.micro',
+    MaxCount=1,
+    MinCount=1
+    )
+while True:
+    status,img=cap.read()
+        
+    handphoto = detector.findHands(img,draw=False)
+        
+    if handphoto:
+        lmlist = handphoto[0]
+        fingerstatus = detector.fingersUp(lmlist)
+
+        if fingerstatus == [1,1,1,1,1]:
+            print("all up")
+            launchOS()
+            launchOS()
+            launchOS()
+            launchOS()
+            launchOS()
+    
+        elif fingerstatus == [ 0 ,1 ,0 , 0, 0]:
+            print("index finger up")
+            launchOS()
+    
+        elif fingerstatus == [ 0 , 1, 1, 0 , 0 ]:
+            print("index and middle finger up")
+            launchOS()
+            launchOS()
+    
+        else:
+            print("idk")
+            
+        cv2.imshow('Image',img) #Show the video 
+        if cv2.waitKey(100) & 0xff==ord(' '): #By using spacebar delay will stop
+            break
+            
+cap.release()     #stop cam       
+cv2.destroyAllWindows() #close window
